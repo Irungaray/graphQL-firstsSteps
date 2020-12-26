@@ -5,6 +5,10 @@ require('dotenv').config()
 const { buildSchema } = require('graphql')
 const express = require('express')
 const { graphqlHTTP } = require('express-graphql')
+const { readFileSync } = require('fs')
+const { join } = require('path')
+
+const resolvers = require('./lib/resolvers')
 
 const app = express()
 const port = process.env.PORT || 3000
@@ -16,26 +20,11 @@ console.log(
 )
 
 // Defining Schema
-const schema = buildSchema(`
-  type Query {
-    "Returns a Hello World"
-    hello: String
-
-    "Returns una reputeada"
-    greetings: String
-  }
-`)
-
-// Configure Resolvers
-const resolvers = {
-  hello: () => {
-    return 'Returns a Hello World'
-  },
-
-  greetings: () => {
-    return 'Returns una reputeada'
-  }
-}
+const schema = buildSchema(
+  readFileSync(join(__dirname, 'lib', 'schema.graphql'),
+    'utf-8'
+  )
+)
 
 // Defining Server
 app.use('/api', graphqlHTTP({
