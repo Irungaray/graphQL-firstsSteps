@@ -1,27 +1,47 @@
 'use strict'
 
+require('dotenv').config();
+
 const { graphql, buildSchema } = require('graphql');
+const express = require('express');
+const { graphqlHTTP } = require('express-graphql');
+
+const app = express();
+const port = process.env.PORT || 3000
+
+console.log(
+  port === process.env.PORT
+  ? 'Server running on env var port'
+  : 'Server running on default port'
+);
 
 // Defining Schema
 const schema = buildSchema(`
   type Query {
+    "Returns a Hello World"
     hello: String
+    "Returns una reputeada"
     greetings: String
   }
-`)
+`);
 
 // Configure Resolvers
 const resolvers = {
   hello: () => {
-    return 'Hello World'
+    return 'Returns a Hello World'
   },
 
   greetings: () => {
-    return 'Hola putos'
+    return 'Returns una reputeada'
   }
-}
+};
 
-// Execute Hello query
-graphql(schema, '{ hello, greetings }', resolvers).then((data) => {
-  console.log(data)
-})
+app.use('/api', graphqlHTTP({
+  schema: schema,
+  rootValue: resolvers,
+  graphiql: true
+}));
+
+app.listen(port, () => {
+  console.log(`Server is listening at http://localhost:${port}/api`)
+});
